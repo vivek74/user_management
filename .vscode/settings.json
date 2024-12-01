@@ -1,0 +1,15 @@
+{
+
+    "editor.codeActionsOnSave": {
+      "source.fixAll.eslint": true
+    },
+    "eslint.validate": ["javascript"],
+    "typescript.tsdk": "node_modules/typescript/lib",
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "cSpell.words": [
+      "dpage",
+      "nestjs",
+      "pgadmin"
+    ],
+  }
+  
