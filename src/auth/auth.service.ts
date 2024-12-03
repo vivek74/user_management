@@ -91,13 +91,13 @@ export class AuthService {
     };
 
     const accessToken = this.jwtService.sign(payload, {
-      secret: 'your-access-token-secret',
-      expiresIn: '15m',
+      secret: process.env.JWT_ACCESS_SECRET,
+      expiresIn: process.env.JWT_ACCESS_TOKEN_EXPIRES_IN,
     });
 
     const refreshToken = this.jwtService.sign(payload, {
-      secret: 'your-refresh-token-secret',
-      expiresIn: '7d',
+      secret: process.env.JWT_REFRESH_SECRET,
+      expiresIn: process.env.JWT_REFRESH_TOKEN_EXPIRES_IN,
     });
 
     auth.refreshToken = refreshToken;
@@ -109,26 +109,31 @@ export class AuthService {
   async refreshTokens(refreshToken: string) {
     try {
       const payload = this.jwtService.verify(refreshToken, {
-        secret: 'your-refresh-token-secret',
+        secret: process.env.JWT_REFRESH_SECRET,
       });
 
       const user = await this.authRepository.findOne({
         where: { id: payload.sub, refreshToken },
+        relations: ['user'],
       });
+
       if (!user) {
         throw new UnauthorizedException('Invalid refresh token');
       }
 
+      console.log(user, '[------');
+
       const newAccessToken = this.jwtService.sign(
         { username: user.username, sub: user.id, role: user.user.role },
         {
-          secret: 'your-access-token-secret',
-          expiresIn: '15m',
+          secret: process.env.JWT_ACCESS_SECRET,
+          expiresIn: process.env.JWT_ACCESS_TOKEN_EXPIRES_IN,
         },
       );
 
       return { accessToken: newAccessToken };
-    } catch {
+    } catch (err) {
+      console.log(err);
       throw new UnauthorizedException('Invalid or expired refresh token');
     }
   }
@@ -136,7 +141,7 @@ export class AuthService {
   async logout(accessToken: string, refreshToken: string) {
     try {
       const payload = this.jwtService.verify(accessToken, {
-        secret: 'your-access-token-secret',
+        secret: process.env.JWT_ACCESS_SECRET,
       });
 
       const auth = await this.authRepository.findOne({
