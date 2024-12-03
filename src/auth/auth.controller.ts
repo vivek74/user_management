@@ -119,19 +119,60 @@ export class AuthController {
   }
 
   @Post('refresh-token')
-  @ApiOperation({ summary: 'Refresh access token using refresh token' })
-  @ApiResponse({ status: 200, description: 'Token refreshed successfully' })
-  @ApiResponse({ status: 401, description: 'Invalid or expired refresh token' })
-  @ApiBody({ schema: { properties: { refreshToken: { type: 'string' } } } })
+  @ApiOperation({
+    summary: 'Refresh access token using refresh token',
+    description: 'Refresh access token using refresh token',
+  })
+  @ApiResponse({
+    status: 201,
+    description: 'Token refreshed successfully',
+    schema: {
+      example: {
+        status: 'success',
+        message: 'Token refreshed successfully',
+        data: {
+          accessToken: '<JWT_ACCESS_TOKEN>',
+        },
+      },
+    },
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Bad request',
+    schema: {
+      example: {
+        statusCode: 400,
+        message: ['refreshToken should not be empty'],
+        error: 'Bad Request',
+      },
+    },
+  })
+  @ApiBearerAuth()
+  @ApiBody({ type: RefreshTokenDto })
+  @UseGuards(JwtAuthGuard)
   async refreshToken(@Body() body: RefreshTokenDto) {
-    return this.authService.refreshTokens(body.refreshToken);
+    const data = await this.authService.refreshTokens(body.refreshToken);
+    return {
+      status: 'success',
+      message: 'Token refreshed successfully',
+      data,
+    };
   }
 
   @Post('logout')
   @UseGuards(JwtAuthGuard)
-  @ApiOperation({ summary: 'Log out the current user' })
+  @ApiOperation({ summary: 'Log out the current user', description: 'Log out' })
   @ApiBearerAuth()
-  @ApiResponse({ status: 200, description: 'Logged out successfully' })
+  @ApiResponse({
+    status: 201,
+    description: 'Logged out successfully',
+    schema: {
+      example: {
+        status: 'success',
+        message: 'Logged out successfully',
+      },
+    },
+  })
   @ApiResponse({
     status: 401,
     description: 'Missing or invalid Authorization header',
@@ -156,10 +197,29 @@ export class AuthController {
   @UseGuards(JwtAuthGuard)
   @ApiOperation({ summary: 'Get the profile of the authenticated user' })
   @ApiBearerAuth()
-  @ApiResponse({ status: 200, description: 'Profile retrieved successfully' })
+  @ApiResponse({
+    status: 200,
+    description: 'Profile retrieved successfully',
+    schema: {
+      example: {
+        status: 'success',
+        message: 'Profile retrieved successfully',
+        data: {
+          id: 1,
+          username: 'John',
+          email: 'john@admin.com',
+          role: 'admin',
+        },
+      },
+    },
+  })
   @ApiResponse({ status: 401, description: 'Unauthorized access' })
   @UseGuards(JwtAuthGuard)
   async getProfile(@Req() req) {
-    return req.user;
+    return {
+      status: 'success',
+      message: 'Profile retrieved successfully',
+      data: req.user,
+    };
   }
 }
