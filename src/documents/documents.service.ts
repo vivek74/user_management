@@ -42,6 +42,7 @@ export class DocumentsService {
         streamifier.createReadStream(buffer).pipe(uploadStream);
       });
     };
+    console.log(file, '--->');
 
     // Upload the file buffer directly to Cloudinary
     const result = await uploadToCloudinary(file.buffer);

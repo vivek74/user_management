@@ -3,6 +3,9 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { RestServiceModule } from './rest.module';
 import { ConfigModule } from '@nestjs/config';
 import { DocumentsModule } from './documents/documents.module';
+import { IngestionModule } from './ingestion/ingestion.module';
+import { PythonMockController } from './python-mock/python-mock.controller';
+import { PythonMockModule } from './python-mock/python-mock.module';
 
 @Module({
   imports: [
@@ -19,8 +22,10 @@ import { DocumentsModule } from './documents/documents.module';
       synchronize: true,
     }),
     DocumentsModule,
+    IngestionModule,
+    PythonMockModule,
   ],
-  controllers: [],
+  controllers: [PythonMockController],
   providers: [],
 })
 export class AppModule {}

@@ -1,13 +1,14 @@
 {
 
     "editor.codeActionsOnSave": {
-      "source.fixAll.eslint": true
+      "source.fixAll.eslint": "explicit"
     },
     "eslint.validate": ["javascript"],
     "typescript.tsdk": "node_modules/typescript/lib",
     "editor.defaultFormatter": "esbenp.prettier-vscode",
     "cSpell.words": [
       "dpage",
+      "Ingestions",
       "nestjs",
       "pgadmin",
       "streamifier"
