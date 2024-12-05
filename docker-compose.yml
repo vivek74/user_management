@@ -11,6 +11,16 @@ services:
     ports:
       - "5432:5432"
 
+  postgres_test:
+    image: postgres:latest
+    container_name: postgres_test
+    environment:
+      POSTGRES_USER: test
+      POSTGRES_PASSWORD: test123
+      POSTGRES_DB: test_db
+    ports:
+      - "5433:5432" # Test DB exposed on port 5433
+
   pgadmin:
     image: dpage/pgadmin4:latest
     container_name: pgadmin

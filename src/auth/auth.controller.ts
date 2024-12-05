@@ -1,13 +1,4 @@
-import {
-  Controller,
-  Post,
-  Body,
-  UseGuards,
-  Headers,
-  UnauthorizedException,
-  Get,
-  Req,
-} from '@nestjs/common';
+import { Controller, Post, Body, UseGuards, Get, Req } from '@nestjs/common';
 import {
   ApiTags,
   ApiOperation,
@@ -178,19 +169,10 @@ export class AuthController {
     description: 'Missing or invalid Authorization header',
   })
   @UseGuards(JwtAuthGuard)
-  async logout(
-    @Headers('authorization') authorization: string,
-    @Body('refreshToken') refreshToken: string,
-  ) {
-    if (!authorization || !authorization.startsWith('Bearer ')) {
-      throw new UnauthorizedException(
-        'Missing or invalid Authorization header',
-      );
-    }
-
-    const accessToken = authorization.replace('Bearer ', '');
-    await this.authService.logout(accessToken, refreshToken);
-    return { message: 'Logged out successfully' };
+  async logout(@Req() req) {
+    const userEmail = req.user.email;
+    await this.authService.logout(userEmail);
+    return { status: 'success', message: 'Logged out successfully' };
   }
 
   @Get('profile')
@@ -216,10 +198,11 @@ export class AuthController {
   @ApiResponse({ status: 401, description: 'Unauthorized access' })
   @UseGuards(JwtAuthGuard)
   async getProfile(@Req() req) {
+    const data = await this.authService.getProfile(req.user.email);
     return {
       status: 'success',
       message: 'Profile retrieved successfully',
-      data: req.user,
+      data: { ...data.user },
     };
   }
 }

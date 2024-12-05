@@ -30,18 +30,13 @@ export class IngestionService {
     });
     await this.ingestionRepository.save(ingestion);
 
-    try {
-      const response = await firstValueFrom(
-        this.httpService.post('http://localhost:9001/python-mock/ingest', {
-          documentId,
-        }),
-      );
+    const response = await firstValueFrom(
+      this.httpService.post('http://localhost:9001/python-mock/ingest', {
+        documentId,
+      }),
+    );
 
-      ingestion.status = response.data.status;
-    } catch (error) {
-      ingestion.status = 'failed';
-      ingestion.error = error.message;
-    }
+    ingestion.status = response.data.status;
 
     return this.ingestionRepository.save(ingestion);
   }
@@ -63,12 +58,6 @@ export class IngestionService {
 
   async cancelIngestion(id: number): Promise<IngestionEntity> {
     const ingestion = await this.getIngestionStatus(id);
-
-    if (ingestion.status !== 'in_progress') {
-      throw new NotFoundException(
-        'Cannot cancel a job that is not in progress',
-      );
-    }
 
     ingestion.status = 'canceled';
     return this.ingestionRepository.save(ingestion);

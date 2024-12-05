@@ -63,17 +63,6 @@ export class AuthService {
     return plainToInstance(AuthEntity, savedAuth);
   }
 
-  async validateUser(
-    username: string,
-    password: string,
-  ): Promise<AuthEntity | null> {
-    const user = await this.authRepository.findOne({ where: { username } });
-    if (user && (await bcrypt.compare(password, user.password))) {
-      return user;
-    }
-    return null;
-  }
-
   async login({ email, password }: LoginAuthDto) {
     const auth = await this.authRepository.findOne({
       where: { user: { email } },
@@ -101,62 +90,51 @@ export class AuthService {
     });
 
     auth.refreshToken = refreshToken;
+    auth.accessToken = accessToken;
     await this.authRepository.save(auth);
 
     return { accessToken, refreshToken };
   }
 
   async refreshTokens(refreshToken: string) {
-    try {
-      const payload = this.jwtService.verify(refreshToken, {
-        secret: process.env.JWT_REFRESH_SECRET,
-      });
+    const payload = this.jwtService.verify(refreshToken, {
+      secret: process.env.JWT_REFRESH_SECRET,
+    });
 
-      const user = await this.authRepository.findOne({
-        where: { id: payload.sub, refreshToken },
-        relations: ['user'],
-      });
+    const user = await this.authRepository.findOne({
+      where: { id: payload.sub, refreshToken },
+      relations: ['user'],
+    });
 
-      if (!user) {
-        throw new UnauthorizedException('Invalid refresh token');
-      }
+    const newAccessToken = this.jwtService.sign(
+      { username: user.username, sub: user.id, role: user.user.role },
+      {
+        secret: process.env.JWT_ACCESS_SECRET,
+        expiresIn: process.env.JWT_ACCESS_TOKEN_EXPIRES_IN,
+      },
+    );
 
-      console.log(user, '[------');
+    user.accessToken = newAccessToken;
+    await this.authRepository.save(user);
 
-      const newAccessToken = this.jwtService.sign(
-        { username: user.username, sub: user.id, role: user.user.role },
-        {
-          secret: process.env.JWT_ACCESS_SECRET,
-          expiresIn: process.env.JWT_ACCESS_TOKEN_EXPIRES_IN,
-        },
-      );
-
-      return { accessToken: newAccessToken };
-    } catch (err) {
-      console.log(err);
-      throw new UnauthorizedException('Invalid or expired refresh token');
-    }
+    return { accessToken: newAccessToken };
   }
 
-  async logout(accessToken: string, refreshToken: string) {
-    try {
-      const payload = this.jwtService.verify(accessToken, {
-        secret: process.env.JWT_ACCESS_SECRET,
-      });
+  async logout(email: string) {
+    const auth = await this.authRepository.findOne({
+      where: { user: { email } },
+      relations: ['user'],
+    });
 
-      const auth = await this.authRepository.findOne({
-        where: { id: payload.sub, refreshToken: refreshToken },
-      });
+    // Invalidate the refresh token by clearing it in the database
+    auth.refreshToken = null;
+    await this.authRepository.save(auth);
+  }
 
-      if (!auth) {
-        throw new UnauthorizedException('Invalid tokens');
-      }
-
-      // Invalidate the refresh token by clearing it in the database
-      auth.refreshToken = null;
-      await this.authRepository.save(auth);
-    } catch {
-      throw new UnauthorizedException('Invalid or expired tokens');
-    }
+  async getProfile(email: string) {
+    return this.authRepository.findOne({
+      where: { user: { email } },
+      relations: ['user'],
+    });
   }
 }
