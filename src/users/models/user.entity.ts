@@ -11,7 +11,7 @@ import { DocumentEntity } from 'src/documents/models/document.entity';
 
 @Entity('users')
 export class UserEntity {
-  @PrimaryGeneratedColumn()
+  @PrimaryGeneratedColumn('uuid')
   id: number;
 
   @Column({ unique: true })

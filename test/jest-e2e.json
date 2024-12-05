@@ -1,9 +1,29 @@
 {
+  "testTimeout": 10000,
   "moduleFileExtensions": ["js", "json", "ts"],
-  "rootDir": ".",
+  "rootDir": "..",
   "testEnvironment": "node",
   "testRegex": ".e2e-spec.ts$",
   "transform": {
     "^.+\\.(t|j)s$": "ts-jest"
-  }
+  },
+  "globalSetup": "<rootDir>/test/globalSetup.ts",
+  "moduleNameMapper": {
+    "src/(.*)$": "<rootDir>/src/$1"
+  },
+  "coverageDirectory": "./coverage",
+  "coverageProvider": "babel",
+  "collectCoverage": true,
+  "coverageThreshold": {
+    "global": {
+      "statements": 90,
+      "branches": 90,
+      "functions": 90,
+      "lines": 90
+    }
+  },
+  "preset": "ts-jest",
+  "verbose": true,
+  "coveragePathIgnorePatterns": ["/node_modules/","/src/config","/test/", "/src/main.ts"],
+  "coverageReporters": ["lcov", "text"]
 }

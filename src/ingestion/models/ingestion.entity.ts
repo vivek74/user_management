@@ -9,7 +9,7 @@ import { DocumentEntity } from 'src/documents/models/document.entity';
 
 @Entity('ingestion_jobs')
 export class IngestionEntity {
-  @PrimaryGeneratedColumn()
+  @PrimaryGeneratedColumn('uuid')
   id: number;
 
   @ManyToOne(() => DocumentEntity, { onDelete: 'CASCADE' })

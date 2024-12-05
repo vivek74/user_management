@@ -12,7 +12,7 @@ import { UserEntity } from '../../users/models/user.entity';
 
 @Entity('auth')
 export class AuthEntity {
-  @PrimaryGeneratedColumn()
+  @PrimaryGeneratedColumn('uuid')
   @Expose()
   id: number;
 
@@ -27,6 +27,10 @@ export class AuthEntity {
   @Column({ nullable: true })
   @Exclude()
   refreshToken: string | null;
+
+  @Column({ nullable: true })
+  @Exclude()
+  accessToken: string | null;
 
   @OneToOne(() => UserEntity, (user) => user.auth, { onDelete: 'CASCADE' })
   @Expose()
