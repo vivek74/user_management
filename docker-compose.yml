@@ -21,17 +21,6 @@ services:
     ports:
       - "5433:5432" # Test DB exposed on port 5433
 
-  pgadmin:
-    image: dpage/pgadmin4:latest
-    container_name: pgadmin
-    environment:
-      PGADMIN_DEFAULT_EMAIL: admin@example.com
-      PGADMIN_DEFAULT_PASSWORD: admin123
-    ports:
-      - "8080:80"
-    depends_on:
-      - postgres
-
   nestjs-app:
     build:
       context: .
